@@ -7,4 +7,4 @@ rectangle
 kite
 square
 kite
-sqiggle
+square
