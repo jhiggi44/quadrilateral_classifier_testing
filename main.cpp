@@ -176,7 +176,7 @@ int main(int argc, const char * argv[]) {
 //        std::cout << q.lengths[0] << " " << q.lengths[1] << " " << q.lengths[2] << " " << q.lengths[3] << std::endl;
 //        std::cout << q.slopes[0] << " " << q.slopes[1] << " " << q.slopes[2] << " " << q.slopes[3] << std::endl << std::endl;
     }
-    std::cout << "THE END" << std::endl;
+//    std::cout << "THE END" << std::endl;
     return 0;
 }
 
