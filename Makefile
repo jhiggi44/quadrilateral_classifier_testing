@@ -7,3 +7,5 @@ detectShape: main.o
 main.o: main.cpp
 	g++ -c main.cpp
 	
+test: detectShape
+	./test.sh
