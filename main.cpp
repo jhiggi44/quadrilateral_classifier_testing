@@ -138,8 +138,6 @@ void printProperShape(const quadrilateral& q) {
     } else if (isAParallelogram && !isAKite) {
         if (isRectangle(q) && !isSquare(q))
             std::cout << "rectangle\n";
-        else if (isSquare(q))
-            std::cout << "square\n";
         else
             std::cout << "parallelogram\n";
     } else if (!isAParallelogram && isAKite) {
@@ -151,20 +149,8 @@ void printProperShape(const quadrilateral& q) {
     }
 }
 
-//rhombus
-//quad
-//trap
-//parallelo
-//trap
-//rectangle
-//kite
-//square
-//kite
-
 int main(int argc, const char * argv[]) {
-//    std::ifstream inFile("input.txt");
     std::string line;
-//    while (std::getline(inFile, line)) {
     while (std::getline(std::cin, line)) {
         std::vector<int> data = getData(line);
         quadrilateral q;
@@ -172,11 +158,7 @@ int main(int argc, const char * argv[]) {
         calculateSideLengths(q);
         calculateSlopes(q);
         printProperShape(q);
-    
-//        std::cout << q.lengths[0] << " " << q.lengths[1] << " " << q.lengths[2] << " " << q.lengths[3] << std::endl;
-//        std::cout << q.slopes[0] << " " << q.slopes[1] << " " << q.slopes[2] << " " << q.slopes[3] << std::endl << std::endl;
     }
-//    std::cout << "THE END" << std::endl;
     return 0;
 }
 
