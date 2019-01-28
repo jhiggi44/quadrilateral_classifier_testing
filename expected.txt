@@ -8,3 +8,7 @@ kite
 square
 kite
 square
+quadrilateral
+kite
+parallelogram
+trapezoid
