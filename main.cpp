@@ -33,7 +33,13 @@ void sortCoordinates(const std::vector<int>& data, quadrilateral& q) {
     q.x_cords.push_back(0);
     q.y_cords.push_back(0);
     // put data in backward, to get lengths and slopes in clock-wise order later
-    for (int i = data.size() - 1; i >= 0; i--) {
+//    for (int i = data.size() - 1; i >= 0; i--) {
+//        if (i % 2 == 0)
+//            q.x_cords.push_back(data[i]);
+//        else
+//            q.y_cords.push_back(data[i]);
+//    }
+    for (int i = 0; i < data.size(); i++) {
         if (i % 2 == 0)
             q.x_cords.push_back(data[i]);
         else
@@ -163,10 +169,10 @@ bool isValidInput(std::vector<int> data) {
     return true;
 }
 
-bool containsCoincidingPoints(quadrilateral q) {
+bool containsCoincidingPoints(const quadrilateral& q) {
     // check 3 input points against the default point at 0,0
     for (int i = 1; i < q.x_cords.size(); i++) {
-        if ((q.x_cords[i] == 0) && (q.y_cords[i] == 0)) {
+        if (q.x_cords[i] == 0 && q.y_cords[i] == 0) {
             return true;
         }
     }
@@ -178,31 +184,40 @@ bool containsCoincidingPoints(quadrilateral q) {
     return false;
 }
 
-int tallyLengths(quadrilateral q) {
-    int total = 0;
-    for (int i = 0; i < q.lengths.size(); i++) {
-        total += q.lengths[i];
-    }
-    return total;
+// found this on https://stackoverflow.com/questions/14176776/find-out-if-2-lines-intersect after
+// many hours trying to simplify detecting crossing lines myself
+// I've adapted on of the answers to work here
+bool isIntersecting(const quadrilateral& q) {
+    return (((q.x_cords[2] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) - (q.y_cords[2] - q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0]))
+            * ((q.x_cords[3] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) - (q.y_cords[3] -q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0])) < 0)
+    &&
+    (((q.x_cords[0] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) - (q.y_cords[0] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2]))
+     * ((q.x_cords[1] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) - (q.y_cords[1] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2])) < 0);
+    
+    //Another way?
+//    if ((q.x_cords[0] < q.x_cords[1]) && (q.y_cords[1] < q.y_cords[2]) && q.x_cords[3] < q.x_cords[2] &&
+//        q.y_cords[0] < q.y_cords[3]) {
+//        return false;
+//    }
+//    return true;
 }
 
-// In a long search for a simple way to detect crossing lines, I came up with this not-even-close way of detecting crossing lines
-// by switching points 2 and 3 and checking if the lengths added up got bigger. This works for any traditional quad but not the whackier ones.
-// I know it's wrong because my tests succeeded, but it is late and I'm going to bed. I will fix this later.
-bool doLinesCross(quadrilateral q) {
-    int originalTotal = tallyLengths(q);
-    std::vector<int> switchedCoords { q.x_cords[2], q.y_cords[2], q.x_cords[3], q.y_cords[3], q.x_cords[1], q.y_cords[1] };
-    quadrilateral z;
-    sortCoordinates(switchedCoords, z);
-    calculateSideLengths(z);
-    int switchedTotal = tallyLengths(z);
-    if (switchedTotal < originalTotal) {
+bool containsIntersectingLines(const quadrilateral& q) {
+    bool failsCheck1 = isIntersecting(q);
+    quadrilateral z = q;
+    std::reverse(z.x_cords.begin() + 1, z.x_cords.end());
+    std::reverse(z.y_cords.begin() + 1, z.y_cords.end());
+    bool failsCheck2 = isIntersecting(z);
+    
+    if(failsCheck1 || failsCheck2) {
         return true;
     }
-    return false;
+    else {
+        return false;
+    }
 }
 
-bool arePointsColinear(quadrilateral q) {
+bool arePointsColinear(const quadrilateral& q) {
     int count = 0;
     for (int i = 0; i < q.slopes.size() - 1; i++) {
         if (q.slopes[i] == q.slopes[i + 1]) {
@@ -237,7 +252,7 @@ int main(int argc, const char * argv[]) {
             std::cout << "error 4" << std::endl;
             break;
         }
-        if (doLinesCross(q)) {
+        if (containsIntersectingLines(q)) {
             std::cout << "error 3" << std::endl;
             break;
         }
