@@ -4,7 +4,6 @@
 //
 //  Created by Jordan Higgins on 1/15/19.
 //  Copyright © 2019 Jordan Higgins. All rights reserved.
-//
 
 #include <iostream>
 #include <cmath>
@@ -32,13 +31,6 @@ std::vector<int> getData(std::string line) {
 void sortCoordinates(const std::vector<int>& data, quadrilateral& q) {
     q.x_cords.push_back(0);
     q.y_cords.push_back(0);
-    // put data in backward, to get lengths and slopes in clock-wise order later
-//    for (int i = data.size() - 1; i >= 0; i--) {
-//        if (i % 2 == 0)
-//            q.x_cords.push_back(data[i]);
-//        else
-//            q.y_cords.push_back(data[i]);
-//    }
     for (int i = 0; i < data.size(); i++) {
         if (i % 2 == 0)
             q.x_cords.push_back(data[i]);
@@ -117,7 +109,7 @@ bool isTrapezoid(const quadrilateral& q) {
 
 bool isRectangle(const quadrilateral& q) {
     for (int i = 0; i < 2; i++) {
-        // assume slopes must equal zero only because one point is guaranteed to be at 0,0 || q.slopes[i] != 999 || q.slopes[i+2] != 999
+        // assume slopes must equal zero only because one point is guaranteed to be at 0,0
         if (q.lengths[i] != q.lengths[i + 2] || (q.slopes[i] != 0 && q.slopes[i] != 999) || (q.slopes[i+2] != 0 && q.slopes[i + 2] != 999))
             return false;
     }
@@ -186,20 +178,16 @@ bool containsCoincidingPoints(const quadrilateral& q) {
 
 // found this on https://stackoverflow.com/questions/14176776/find-out-if-2-lines-intersect after
 // many hours trying to simplify detecting crossing lines myself
-// I've adapted on of the answers to work here
+// I've adapted one of the answers to work here
 bool isIntersecting(const quadrilateral& q) {
-    return (((q.x_cords[2] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) - (q.y_cords[2] - q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0]))
-            * ((q.x_cords[3] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) - (q.y_cords[3] -q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0])) < 0)
-    &&
-    (((q.x_cords[0] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) - (q.y_cords[0] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2]))
-     * ((q.x_cords[1] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) - (q.y_cords[1] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2])) < 0);
-    
-    //Another way?
-//    if ((q.x_cords[0] < q.x_cords[1]) && (q.y_cords[1] < q.y_cords[2]) && q.x_cords[3] < q.x_cords[2] &&
-//        q.y_cords[0] < q.y_cords[3]) {
-//        return false;
-//    }
-//    return true;
+    return (((q.x_cords[2] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) -
+     (q.y_cords[2] - q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0])) *
+    ((q.x_cords[3] - q.x_cords[0]) * (q.y_cords[1] - q.y_cords[0]) -
+     (q.y_cords[3] -q.y_cords[0]) * (q.x_cords[1] - q.x_cords[0])) < 0) &&
+    (((q.x_cords[0] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) -
+      (q.y_cords[0] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2])) *
+     ((q.x_cords[1] - q.x_cords[2]) * (q.y_cords[3] - q.y_cords[2]) -
+      (q.y_cords[1] - q.y_cords[2]) * (q.x_cords[3] - q.x_cords[2])) < 0);
 }
 
 bool containsIntersectingLines(const quadrilateral& q) {
@@ -208,7 +196,6 @@ bool containsIntersectingLines(const quadrilateral& q) {
     std::reverse(z.x_cords.begin() + 1, z.x_cords.end());
     std::reverse(z.y_cords.begin() + 1, z.y_cords.end());
     bool failsCheck2 = isIntersecting(z);
-    
     if(failsCheck1 || failsCheck2) {
         return true;
     }
@@ -217,17 +204,19 @@ bool containsIntersectingLines(const quadrilateral& q) {
     }
 }
 
-bool arePointsColinear(const quadrilateral& q) {
-    int count = 0;
-    for (int i = 0; i < q.slopes.size() - 1; i++) {
-        if (q.slopes[i] == q.slopes[i + 1]) {
-            count++;
-        } else {
-            count = 0;
-        }
-        if (count >= 3) {
+
+//48 37 75 25 84 28
+// adapted from https://www.geeksforgeeks.org/program-check-three-points-collinear/
+// checks if any combination of three points are colinear
+bool containsColinearPoints(const quadrilateral& q) {
+    for (int i = 0; i < q.x_cords.size(); i++) {
+        int j = findNeighborRef(i);
+        int k = findNeighborRef(j);
+        int res = q.x_cords[i] * (q.y_cords[j] - q.y_cords[k]) +
+        q.x_cords[j] * (q.y_cords[k] - q.y_cords[i]) +
+        q.x_cords[k] * (q.y_cords[i] - q.y_cords[j]);
+        if (res == 0)
             return true;
-        }
     }
     return false;
 }
@@ -237,7 +226,7 @@ int main(int argc, const char * argv[]) {
     while (std::getline(std::cin, line)) {
         std::vector<int> data = getData(line);
         if (!isValidInput(data)) {
-            std::cout << "error 1" << std::endl;
+            std::cout << "error 1\n";
             break;
         }
         quadrilateral q;
@@ -245,15 +234,15 @@ int main(int argc, const char * argv[]) {
         calculateSideLengths(q);
         calculateSlopes(q);
         if (containsCoincidingPoints(q)) {
-            std::cout << "error 2" << std::endl;
+            std::cout << "error 2\n";
             break;
         }
-        if (arePointsColinear(q)) {
-            std::cout << "error 4" << std::endl;
+        if (containsColinearPoints(q)) {
+            std::cout << "error 4\n";
             break;
         }
         if (containsIntersectingLines(q)) {
-            std::cout << "error 3" << std::endl;
+            std::cout << "error 3\n";
             break;
         }
         printProperShape(q);

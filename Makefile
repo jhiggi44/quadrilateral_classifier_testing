@@ -3,6 +3,9 @@ all: detectShape
 detectShape: main.cpp
 	clang++ -std=c++14 -fsanitize=address main.cpp -o detectShape
 
+peer: peerMain.cpp
+	clang++ -std=c++14 -fsanitize=address main.cpp -o detectShapePeer
+
 test: detectShape
 	coverage_testing/tests/./generic_test.sh
 	coverage_testing/tests/./err1_0_test.sh
@@ -40,3 +43,4 @@ fuzzer:
 	chmod u+x generateFiles.js
 	./generateFiles.js
 	chmod +x fuzz.sh
+	chmod +x peerFuzz.sh
