@@ -81,5 +81,13 @@ do
     echo "test $i didn't run properly"
     fi
 done
-echo "$COUNTER ERROR(S) FOUND. Check in the results folder for more info."
+if [[ $COUNTER -gt 0 ]]
+then
+echo "Error"
+exit 1
+elif [[ $COUNTER -eq 0 ]]
+then
+echo "OK"
+exit 0
+fi
 
